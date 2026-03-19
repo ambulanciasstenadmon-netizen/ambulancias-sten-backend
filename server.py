@@ -724,11 +724,35 @@ async def create_notification(
     }
     await db.notifications.insert_one(notification)
     
-    # TODO: Enviar push notification via FCM cuando esté configurado
-    # await send_fcm_notification(user_id, title, message, priority)
+# Enviar push notification via FCM
+    try:
+        fcm_priority = "normal"
+        if priority in [NotificationPriority.ALERTA, NotificationPriority.CRITICA]:
+            fcm_priority = "critica" if priority == NotificationPriority.CRITICA else "alerta"
+        
+        device_tokens = await db.device_tokens.find({
+            "user_id": user_id,
+            "is_active": True
+        }).to_list(10)
+        
+        tokens = [dt["token"] for dt in device_tokens]
+        
+        if tokens:
+            await send_push_to_multiple(
+                tokens=tokens,
+                title=title,
+                body=message,
+                priority=fcm_priority,
+                data={
+                    "notification_type": str(notification_type),
+                    "service_id": service_id or "",
+                    "entity_id": entity_id or "",
+                }
+            )
+    except Exception as e:
+        print(f"[FCM] Error enviando push: {e}")
     
     return notification
-
 async def notify_all_coordinators(
     title: str, 
     message: str, 
@@ -2293,7 +2317,36 @@ async def remove_device_token(token: str, current_user: User = Depends(get_curre
         {"$set": {"is_active": False, "updated_at": datetime.utcnow()}}
     )
     return {"message": "Token desactivado"}
-
+@api_router.post("/users/fcm-token")
+async def update_fcm_token(data: dict, current_user: User = Depends(get_current_user)):
+    """Registrar token FCM del dispositivo para notificaciones push"""
+    fcm_token = data.get("fcm_token")
+    if not fcm_token:
+        raise HTTPException(status_code=400, detail="Token FCM requerido")
+    
+    existing = await db.device_tokens.find_one({
+        "user_id": current_user.id,
+        "token": fcm_token
+    })
+    
+    if existing:
+        await db.device_tokens.update_one(
+            {"user_id": current_user.id, "token": fcm_token},
+            {"$set": {"is_active": True, "updated_at": datetime.utcnow()}}
+        )
+    else:
+        token_dict = {
+            "id": str(uuid.uuid4()),
+            "user_id": current_user.id,
+            "token": fcm_token,
+            "device_type": "android",
+            "is_active": True,
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+        await db.device_tokens.insert_one(token_dict)
+    
+    return {"message": "Token FCM registrado correctamente"}
 # Finance Routes
 @api_router.post("/finances", response_model=FinanceEntry)
 async def create_finance_entry(data: FinanceEntryCreate, current_user: User = Depends(get_current_user)):
