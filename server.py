@@ -2670,7 +2670,7 @@ INVENTORY_TEMPLATE = {
         {"name": "Venda elástica 10cm", "expected": 1},
         {"name": "Venda elástica 15cm", "expected": 1},
         {"name": "Venda elástica 20cm", "expected": 1},
-        {"name": "Venda elástica 30cm", "expected": 1},GA
+        {"name": "Venda elástica 30cm", "expected": 1},
         {"name": "Cánula aspiración (Yankauer / French)", "expected": 2},
         {"name": "Línea de aspiración", "expected": 2},
         {"name": "Mascarilla con reservorio adulto", "expected": 2},
