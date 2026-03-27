@@ -3502,6 +3502,8 @@ async def generate_weekly_report(
     total_egresos = sum(e["amount"] for e in entries if e["entry_type"] == "egreso")
     ingresos_efectivo = sum(e["amount"] for e in entries if e["entry_type"] == "ingreso" and e.get("payment_type") == "efectivo")
     ingresos_transferencia = sum(e["amount"] for e in entries if e["entry_type"] == "ingreso" and e.get("payment_type") == "transferencia")
+    ingresos_tarjeta = sum(e["amount"] for e in entries if e["entry_type"] == "ingreso" and e.get("payment_type") == "tarjeta")
+    ingresos_hospital = sum(e["amount"] for e in entries if e["entry_type"] == "ingreso" and e.get("payment_type") == "hospital")
     balance = total_ingresos - total_egresos
     
     summary_data = [
@@ -3509,6 +3511,8 @@ async def generate_weekly_report(
         ["Total Ingresos:", f"${total_ingresos:,.2f}"],
         ["  - Efectivo:", f"${ingresos_efectivo:,.2f}"],
         ["  - Transferencia:", f"${ingresos_transferencia:,.2f}"],
+        ["  - Tarjeta (+8%):", f"${ingresos_tarjeta:,.2f}"],
+        ["  - Hospital:", f"${ingresos_hospital:,.2f}"],
         ["Total Egresos:", f"${total_egresos:,.2f}"],
         ["BALANCE:", f"${balance:,.2f}"]
     ]
@@ -3626,16 +3630,33 @@ async def generate_weekly_excel(
     total_ingresos = sum(e["amount"] for e in entries if e["entry_type"] == "ingreso")
     total_egresos = sum(e["amount"] for e in entries if e["entry_type"] == "egreso")
     
+ ingresos_efectivo = sum(e["amount"] for e in entries if e["entry_type"] == "ingreso" and e.get("payment_type") == "efectivo")
+    ingresos_transferencia = sum(e["amount"] for e in entries if e["entry_type"] == "ingreso" and e.get("payment_type") == "transferencia")
+    ingresos_tarjeta = sum(e["amount"] for e in entries if e["entry_type"] == "ingreso" and e.get("payment_type") == "tarjeta")
+    ingresos_hospital = sum(e["amount"] for e in entries if e["entry_type"] == "ingreso" and e.get("payment_type") == "hospital")
+
     ws['A3'] = "Total Ingresos:"
     ws['B3'] = total_ingresos
     ws['B3'].number_format = '$#,##0.00'
-    ws['A4'] = "Total Egresos:"
-    ws['B4'] = total_egresos
+    ws['A4'] = "  - Efectivo:"
+    ws['B4'] = ingresos_efectivo
     ws['B4'].number_format = '$#,##0.00'
-    ws['A5'] = "Balance:"
-    ws['B5'] = total_ingresos - total_egresos
+    ws['A5'] = "  - Transferencia:"
+    ws['B5'] = ingresos_transferencia
     ws['B5'].number_format = '$#,##0.00'
-    ws['B5'].font = Font(bold=True)
+    ws['A6'] = "  - Tarjeta (+8%):"
+    ws['B6'] = ingresos_tarjeta
+    ws['B6'].number_format = '$#,##0.00'
+    ws['A7'] = "  - Hospital:"
+    ws['B7'] = ingresos_hospital
+    ws['B7'].number_format = '$#,##0.00'
+    ws['A8'] = "Total Egresos:"
+    ws['B8'] = total_egresos
+    ws['B8'].number_format = '$#,##0.00'
+    ws['A9'] = "Balance:"
+    ws['B9'] = total_ingresos - total_egresos
+    ws['B9'].number_format = '$#,##0.00'
+    ws['B9'].font = Font(bold=True)
     
     # Headers
     headers = ["Fecha", "Tipo", "Descripción", "Categoría", "Monto"]
