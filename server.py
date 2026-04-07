@@ -68,22 +68,22 @@ FULL_ACCESS_ROLES = {
     UserRole.ADMINISTRADOR.value,
     UserRole.COORDINADOR.value,
     UserRole.SUPERVISOR.value,
+    UserRole.ADMINISTRATIVO.value,
 }
-
 # Roles que pueden administrar usuarios
 ADMIN_ROLES = {
     UserRole.ADMINISTRADOR.value,
     UserRole.COORDINADOR.value,
     UserRole.SUPERVISOR.value,
+    UserRole.ADMINISTRATIVO.value,
 }
-
 # Roles que requieren 2FA obligatorio
 TWO_FA_REQUIRED_ROLES = {
     UserRole.ADMINISTRADOR.value,
     UserRole.COORDINADOR.value,
     UserRole.SUPERVISOR.value,
+    UserRole.ADMINISTRATIVO.value,
 }
-
 class ServiceType(str, Enum):
     URGENTE = "urgente"
     PROGRAMADO = "programado"
