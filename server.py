@@ -2417,7 +2417,7 @@ async def get_finance_summary(
     total_ingresos = sum(e["amount"] for e in entries if e["entry_type"] == "ingreso")
     total_egresos = sum(e["amount"] for e in entries if e["entry_type"] == "egreso")
     
-    ingresos_efectivo = sum(e["amount"] for e in entries if e["entry_type"] == "ingreso" and e.get("payment_type") == "efectivo")
+  ingresos_efectivo = sum(e["amount"] for e in entries if e["entry_type"] == "ingreso" and e.get("payment_type") == "efectivo")
     ingresos_transferencia = sum(e["amount"] for e in entries if e["entry_type"] == "ingreso" and e.get("payment_type") == "transferencia")
     
     egresos_by_category = {}
